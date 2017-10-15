@@ -1,4 +1,3 @@
-import operator
 def simplify(cnf, literal):
     global truth_table
     res = []
@@ -17,9 +16,6 @@ def simplify(cnf, literal):
             res.append(tmp)
         elif literal not in clause:  # if literal in clause, remove clause
             res.append(clause)
-    if len(res) == 1:
-        if len(res[0]) == 0:
-            res = []
     return res
 
 def splitting_rule(cnf):
@@ -40,16 +36,11 @@ def dpll(cnf):
     global truth_table
     global unit_count
     # satisfiable check
-    print(cnf)
+    #print(cnf)
     if len(cnf) == 0:  # nothing in list => satisfiable
         return "satisfiable"
     elif len(cnf) == 1:  # length is 1 & false clause => unsatisfiable
-        tmp_lit = cnf[0]
-        if '!' in tmp_lit[0]:
-            literal = tmp_lit[0][1]
-        else:
-            literal = tmp_lit[0]
-        if truth_table[literal] == 'false':
+        if len(cnf[0]) == 0:
             return "unsatisfiable"
     # unit-propagation rule
     for clause in cnf:
@@ -82,8 +73,11 @@ if __name__ == "__main__":
    
     dpll_result = dpll(CNF)
     print(dpll_result)
+
     if dpll_result == 'satisfiable':
-        print(truth_table)
+        truth_table = sorted(truth_table.items())
+        for truth in truth_table:
+            print(truth[0], "=", truth[1])
     print("Unit-propagation Rule count:", unit_count)
     print("Splitting-count Rule count:", splitting_count)
     f.close()
