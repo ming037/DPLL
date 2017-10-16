@@ -5,9 +5,7 @@ def simplify(cnf, literal):
     res = []
     if literal[0] == '!':
         compare_lit = literal[1]
-        truth_table[compare_lit] = 'false'
     else:
-        truth_table[literal] = 'true'
         compare_lit = '!'+literal
     for clause in cnf:
         if compare_lit in clause:  # if opposite literal in clause, remove just literal
@@ -29,7 +27,6 @@ def splitting_rule(cnf):
         if truth_table[literal] == 0:  # if not assigned
             truth_table[literal] = 'false'
             tmp = dpll(simplify(cnf, '!'+literal))
-            #print(tmp)
             if tmp == 'satisfiable':
                 return 'satisfiable'
             else:
@@ -39,6 +36,8 @@ def splitting_rule(cnf):
                     truth_table[literal] = 0
                 return tmp2
     return 'unsatisfiable'
+
+
 def dpll(cnf):
     global truth_table
     global unit_count
@@ -53,6 +52,10 @@ def dpll(cnf):
     for clause in cnf:
         if len(clause) == 1:  # check if it is unit-clause
             unit_count += 1
+            if clause[0][0] == '!':
+                truth_table[clause[0][1]] = 'false'
+            else:
+                truth_table[clause[0]] = 'true'
             tmp = simplify(cnf, clause[0])
             return dpll(tmp)
     # splitting rule
@@ -112,7 +115,7 @@ if __name__ == "__main__":
             truth_table[literal] = 0
         f.close()
     else:
-        random_cnf(3, 200, 50)  # k m n
+        random_cnf(3, 150, 50)  # k m n
 
     dpll_result = dpll(CNF)
     print(dpll_result)
