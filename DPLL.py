@@ -1,7 +1,6 @@
 import string
 import random
 def simplify(cnf, literal):
-    global truth_table
     res = []
     if literal[0] == '!':
         compare_lit = literal[1]
@@ -25,16 +24,19 @@ def splitting_rule(cnf):
     # Select V witch has not been assigned
     for literal in truth_table:
         if truth_table[literal] == 0:  # if not assigned
+            save_table = {}
+            for k in truth_table:
+                save_table[k] = truth_table[k]
             truth_table[literal] = 'false'
             tmp = dpll(simplify(cnf, '!'+literal))
             if tmp == 'satisfiable':
-                return 'satisfiable'
+                res = 'satisfiable'
             else:
+                truth_table = save_table
                 truth_table[literal] = 'true'
                 tmp2 = dpll(simplify(cnf, literal))
-                if tmp2 != 'satisfiable':
-                    truth_table[literal] = 0
-                return tmp2
+                res = tmp2
+            return res
     return 'unsatisfiable'
 
 
@@ -42,7 +44,6 @@ def dpll(cnf):
     global truth_table
     global unit_count
     # satisfiable check
-    #print(cnf)
     if len(cnf) == 0:  # nothing in list => satisfiable
         return "satisfiable"
     elif len(cnf) == 1:  # empty list in list => unsatisfiable
