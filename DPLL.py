@@ -27,13 +27,18 @@ def splitting_rule(cnf):
     # Select V witch has not been assigned
     for literal in truth_table:
         if truth_table[literal] == 0:  # if not assigned
+            truth_table[literal] = 'false'
             tmp = dpll(simplify(cnf, '!'+literal))
+            #print(tmp)
             if tmp == 'satisfiable':
                 return 'satisfiable'
             else:
-                truth_table[literal] = 0
-                return dpll(simplify(cnf, literal))
-
+                truth_table[literal] = 'true'
+                tmp2 = dpll(simplify(cnf, literal))
+                if tmp2 != 'satisfiable':
+                    truth_table[literal] = 0
+                return tmp2
+    return 'unsatisfiable'
 def dpll(cnf):
     global truth_table
     global unit_count
@@ -41,7 +46,7 @@ def dpll(cnf):
     #print(cnf)
     if len(cnf) == 0:  # nothing in list => satisfiable
         return "satisfiable"
-    elif len(cnf) == 1:  # length is 1 & false clause => unsatisfiable
+    elif len(cnf) == 1:  # empty list in list => unsatisfiable
         if len(cnf[0]) == 0:
             return "unsatisfiable"
     # unit-propagation rule
@@ -107,11 +112,10 @@ if __name__ == "__main__":
             truth_table[literal] = 0
         f.close()
     else:
-        random_cnf(3, 10, 50)
+        random_cnf(3, 200, 50)  # k m n
 
     dpll_result = dpll(CNF)
     print(dpll_result)
-
     if dpll_result == 'satisfiable':
         truth_table = sorted(truth_table.items())
         for truth in truth_table:

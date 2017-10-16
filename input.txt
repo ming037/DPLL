@@ -1,8 +1,8 @@
-!A B E
-!B A
-!E A
-!E D
-!C !F !B
-!E B
-!B F
-!B C
+!A B D
+!B C D
+A !C D
+A !B !D
+B !C !D
+!A C !D
+A B C
+!A !B !C
