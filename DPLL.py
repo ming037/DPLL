@@ -1,5 +1,7 @@
 import string
 import random
+import matplotlib.pyplot as plt
+import numpy as np
 def simplify(cnf, literal):
     res = []
     if literal[0] == '!':
@@ -43,6 +45,9 @@ def splitting_rule(cnf):
 def dpll(cnf):
     global truth_table
     global unit_count
+    global dpll_calls
+
+    dpll_calls += 1
     # satisfiable check
     if len(cnf) == 0:  # nothing in list => satisfiable
         return "satisfiable"
@@ -63,7 +68,7 @@ def dpll(cnf):
     return splitting_rule(cnf)
 
 
-def random_cnf(k, m, n):
+def random_cnf(k, m, n, w):
     global CNF
     global truth_table
     global literal_set
@@ -73,6 +78,10 @@ def random_cnf(k, m, n):
     CNF = []
     posneg = ['', '!']
     symbols =[]
+
+    if w != 'n':
+        f = open("random.txt", 'w')
+    file_CNF = []
     for c in string.ascii_uppercase:
         symbols.append(c)
     for c in string.ascii_lowercase:
@@ -81,26 +90,33 @@ def random_cnf(k, m, n):
 
     while len(CNF) != m:
         tmp_clause = []
+        file_clause =""
         while len(tmp_clause) != k:
             lit = random.choice(symbols)
             if lit not in tmp_clause and '!'+lit not in tmp_clause:
                 truth_table[lit] = 0
-                tmp_clause.append(random.choice(posneg) + lit)
+                ran_lit = random.choice(posneg) + lit
+                tmp_clause.append(ran_lit)
+                file_clause += (ran_lit+' ')
         if tmp_clause not in CNF:
             CNF.append(tmp_clause)
-    print(CNF)
+            file_CNF.append(file_clause)
+    if w != 'n':
+        f.write('\n'.join(file_CNF))
+        f.close()
 
 
 if __name__ == "__main__":
     unit_count = 0
     splitting_count = 0
+    dpll_calls = 0
     CNF = []
     literal_set = set()
     truth_table = {}
+    order = input("Choose F(file) or R(random) of G(graph):")
+    select = ""
 
-    order = input("Choose T(text) or R(random):")
-
-    if order == "T":
+    if order == "F":
         f = open('input.txt', 'r')
         clause = f.readline()
         while clause:
@@ -115,17 +131,45 @@ if __name__ == "__main__":
         for literal in literal_set:
             truth_table[literal] = 0
         f.close()
-    else:
-        random_cnf(3, 150, 50)  # k m n
+    elif order == 'R':
+        k = input("k:")
+        m = input("m:")
+        n = input("n:")
+        random_cnf(int(k), int(m), int(n), 'y')  # k m n
 
-    dpll_result = dpll(CNF)
-    print(dpll_result)
-    if dpll_result == 'satisfiable':
-        truth_table = sorted(truth_table.items())
-        for truth in truth_table:
-            if truth[1] != 0:
-                print(truth[0], "=", truth[1])
-    print("Unit propagation Rule count:", unit_count)
-    print("Splitting Rule count:", splitting_count)
+    else:  # in case G
+        k = 3
+        n = 50
+        xpoints = []
+        ypoints = []
+        for m in range(n*8):  # m continuously grow
+            x_ratio = m/n  # x axis
+            dpll_calls = 0  # y axis
+            CNF_num = random.randint(100, 201)
+            for i in range(CNF_num):
+                CNF = []
+                random_cnf(k, m, n, 'n')
+                dpll(CNF)
+                xpoints.append(x_ratio)
+                ypoints.append(dpll_calls)
+        plt.plot(xpoints, ypoints)
+        plt.ylim([0, 2000])
+        plt.xlim([0, 8])
+        plt.title('DPLL time estimation')
+        plt.xlabel('Clause/symbol ratio m/n')
+        plt.ylabel('Runtime (number of DPLL calls)')
+        plt.grid(True)
+        plt.show()
+
+    if order == 'F' or order == 'R':
+        dpll_result = dpll(CNF)
+        print(dpll_result)
+        if dpll_result == 'satisfiable':
+            truth_table = sorted(truth_table.items())
+            for truth in truth_table:
+                if truth[1] != 0:
+                    print(truth[0], "=", truth[1])
+        print("Unit propagation Rule count:", unit_count)
+        print("Splitting Rule count:", splitting_count)
 
 
