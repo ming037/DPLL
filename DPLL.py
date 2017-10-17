@@ -1,7 +1,7 @@
 import string
 import random
 import matplotlib.pyplot as plt
-import numpy as np
+
 def simplify(cnf, literal):
     res = []
     if literal[0] == '!':
@@ -139,10 +139,10 @@ if __name__ == "__main__":
 
     else:  # in case G
         k = 3
-        n = 50
+        n = 15
         xpoints = []
         ypoints = []
-        for m in range(n*8):  # m continuously grow
+        for m in range(int(n*12)):  # m continuously grow
             x_ratio = m/n  # x axis
             dpll_calls = 0  # y axis
             CNF_num = random.randint(100, 201)
@@ -150,11 +150,12 @@ if __name__ == "__main__":
                 CNF = []
                 random_cnf(k, m, n, 'n')
                 dpll(CNF)
-                xpoints.append(x_ratio)
-                ypoints.append(dpll_calls)
+            xpoints.append(x_ratio)
+            ypoints.append(dpll_calls)
+
         plt.plot(xpoints, ypoints)
-        plt.ylim([0, 2000])
-        plt.xlim([0, 8])
+        plt.ylim([0, 26000])
+        plt.xlim([0, 12])
         plt.title('DPLL time estimation')
         plt.xlabel('Clause/symbol ratio m/n')
         plt.ylabel('Runtime (number of DPLL calls)')
