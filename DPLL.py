@@ -32,15 +32,12 @@ def splitting_rule(cnf):
             truth_table[literal] = 'false'
             tmp = dpll(simplify(cnf, '!'+literal))
             if tmp == 'satisfiable':
-                res = 'satisfiable'
+                return 'satisfiable'
             else:
                 truth_table = save_table
                 truth_table[literal] = 'true'
                 tmp2 = dpll(simplify(cnf, literal))
-                res = tmp2
-            return res
-    return 'unsatisfiable'
-
+                return tmp2
 
 def dpll(cnf):
     global truth_table
@@ -51,9 +48,9 @@ def dpll(cnf):
     # satisfiable check
     if len(cnf) == 0:  # nothing in list => satisfiable
         return "satisfiable"
-    elif len(cnf) == 1:  # empty list in list => unsatisfiable
-        if len(cnf[0]) == 0:
-            return "unsatisfiable"
+    if [] in cnf:
+        return "unsatisfiable"
+
     # unit-propagation rule
     for clause in cnf:
         if len(clause) == 1:  # check if it is unit-clause
@@ -78,7 +75,6 @@ def random_cnf(k, m, n, w):
     CNF = []
     posneg = ['', '!']
     symbols =[]
-
     if w != 'n':
         f = open("random.txt", 'w')
     file_CNF = []
@@ -98,13 +94,13 @@ def random_cnf(k, m, n, w):
                 ran_lit = random.choice(posneg) + lit
                 tmp_clause.append(ran_lit)
                 file_clause += (ran_lit+' ')
+                tmp_clause = sorted(tmp_clause)
         if tmp_clause not in CNF:
             CNF.append(tmp_clause)
             file_CNF.append(file_clause)
     if w != 'n':
         f.write('\n'.join(file_CNF))
         f.close()
-
 
 if __name__ == "__main__":
     unit_count = 0
@@ -139,23 +135,21 @@ if __name__ == "__main__":
 
     else:  # in case G
         k = 3
-        n = 15
+        n = 26
         xpoints = []
         ypoints = []
-        for m in range(int(n*12)):  # m continuously grow
+        for m in range(1, 400, 2):  # m continuously grow
             x_ratio = m/n  # x axis
             dpll_calls = 0  # y axis
-            CNF_num = random.randint(100, 201)
-            for i in range(CNF_num):
-                CNF = []
-                random_cnf(k, m, n, 'n')
-                dpll(CNF)
+            CNF = []
+            random_cnf(k, m, n, 'n')
+            dpll(CNF)
             xpoints.append(x_ratio)
             ypoints.append(dpll_calls)
 
         plt.plot(xpoints, ypoints)
-        plt.ylim([0, 26000])
-        plt.xlim([0, 12])
+        plt.ylim([0, 1000])
+        plt.xlim([0, 15])
         plt.title('DPLL time estimation')
         plt.xlabel('Clause/symbol ratio m/n')
         plt.ylabel('Runtime (number of DPLL calls)')
