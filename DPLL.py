@@ -2,6 +2,7 @@ import string
 import random
 import matplotlib.pyplot as plt
 
+
 def simplify(cnf, literal):
     res = []
     if literal[0] == '!':
@@ -19,6 +20,7 @@ def simplify(cnf, literal):
             res.append(clause)
     return res
 
+
 def splitting_rule(cnf):
     global splitting_count
     global truth_table
@@ -34,10 +36,11 @@ def splitting_rule(cnf):
             if tmp == 'satisfiable':
                 return 'satisfiable'
             else:
-                truth_table = save_table
+                truth_table = save_table  # for backtracking
                 truth_table[literal] = 'true'
                 tmp2 = dpll(simplify(cnf, literal))
                 return tmp2
+
 
 def dpll(cnf):
     global truth_table
