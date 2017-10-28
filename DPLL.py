@@ -21,31 +21,11 @@ def simplify(cnf, literal):
     return res
 
 
-def splitting_rule(cnf):
-    global splitting_count
-    global truth_table
-    splitting_count += 1
-    # Select V witch has not been assigned
-    for literal in truth_table:
-        if truth_table[literal] == 0:  # if not assigned
-            save_table = {}
-            for k in truth_table:
-                save_table[k] = truth_table[k]
-            truth_table[literal] = 'false'
-            tmp = dpll(simplify(cnf, '!'+literal))
-            if tmp == 'satisfiable':
-                return 'satisfiable'
-            else:
-                truth_table = save_table  # for backtracking
-                truth_table[literal] = 'true'
-                tmp2 = dpll(simplify(cnf, literal))
-                return tmp2
-
-
 def dpll(cnf):
     global truth_table
     global unit_count
     global dpll_calls
+    global splitting_count
 
     dpll_calls += 1
     # satisfiable check
@@ -64,8 +44,23 @@ def dpll(cnf):
                 truth_table[clause[0]] = 'true'
             tmp = simplify(cnf, clause[0])
             return dpll(tmp)
+
     # splitting rule
-    return splitting_rule(cnf)
+    splitting_count += 1
+    for literal in truth_table:
+        if truth_table[literal] == 0:  # if not assigned
+            save_table = {}
+            for k in truth_table:
+                save_table[k] = truth_table[k]
+            truth_table[literal] = 'false'
+            tmp1 = dpll(simplify(cnf, '!' + literal))
+            if tmp1 == 'satisfiable':
+                return 'satisfiable'
+            else:
+                truth_table = save_table  # for backtracking
+                truth_table[literal] = 'true'
+                tmp2 = dpll(simplify(cnf, literal))
+                return tmp2
 
 
 def random_cnf(k, m, n, w):
@@ -89,7 +84,7 @@ def random_cnf(k, m, n, w):
 
     while len(CNF) != m:
         tmp_clause = []
-        file_clause =""
+        file_clause = ""
         while len(tmp_clause) != k:
             lit = random.choice(symbols)
             if lit not in tmp_clause and '!'+lit not in tmp_clause:
