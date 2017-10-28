@@ -1,4 +1,4 @@
-A !B !C !D
-B !D
-C !D
-D
+!P Q
+!Q R
+S !R !P
+P
